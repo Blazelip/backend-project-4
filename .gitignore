@@ -1,0 +1,12 @@
+# Node Modules
+node_modules
+
+# IDE / Editor
+.idea
+.vscode
+
+# macOS
+.DS_Store
+
+# Test coverage
+coverage
