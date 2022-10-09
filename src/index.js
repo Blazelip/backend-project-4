@@ -1,3 +1,6 @@
-export default (message) => {
-  return message;
+export default (url, directory = process.cwd()) => {
+  return {
+    url,
+    directory,
+  };
 }
