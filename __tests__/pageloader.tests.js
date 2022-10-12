@@ -1,5 +1,5 @@
 import os from 'os';
-import fs from 'fs';
+import fsp from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import nock from 'nock';
@@ -19,11 +19,11 @@ const getFixturePath = (filename) => path.resolve(__dirname, '..', '__fixtures__
 nock.disableNetConnect();
 
 beforeAll(async () => {
-  expected = await fs.readFile(getFixturePath('expected.html'), 'utf-8');
+  expected = await fsp.readFile(getFixturePath('expected.html'), 'utf-8');
 });
 
 beforeEach(async () => {
-  tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'page-loader-'));
+  tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), 'page-loader-'));
 });
 
 test('correct dataFetch', async () => {
@@ -32,6 +32,6 @@ test('correct dataFetch', async () => {
     .reply(200, expected);
 
   const filePath = await testFunc(URL, tempDir);
-  const fileContent = await fs.readFile(filePath);
+  const fileContent = await fsp.readFile(filePath);
   expect(fileContent).toEqual(expected);
 });
