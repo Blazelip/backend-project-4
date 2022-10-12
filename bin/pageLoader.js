@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-import testFunc from '../src/index.js'
 import { Command } from 'commander';
+import testFunc from '../src/index.js';
 
 const program = new Command();
 
@@ -12,8 +12,8 @@ program
   .argument('<url>', 'site url')
   .option('-o, --output [dir]', 'output dir (default: "/home/user/current-dir")')
   .action((url, options) => {
-    const content = testFunc(url, options.output);
-    console.log(content);
+    const result = testFunc(url, options.output);
+    result.then((path) => console.log(path));
   });
 
 program.parse();
