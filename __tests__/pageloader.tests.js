@@ -10,7 +10,6 @@ let tempDir;
 let expected;
 
 const URL = 'https://ru.hexlet.io/courses';
-const wrongUrl = 'https://ru.hexlet.io/curses';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -21,7 +20,6 @@ nock.disableNetConnect();
 
 beforeAll(async () => {
   expected = await fsp.readFile(getFixturePath('expected.html'), 'utf-8');
-  console.log('EXPECTED IN TEST', expected);
 });
 
 beforeEach(async () => {
@@ -38,7 +36,10 @@ test('correct dataFetch', async () => {
   expect(fileContent).toEqual(expected);
 });
 
-test('incorrect URL', async () => {
-  const result = pageLoader(wrongUrl, tempDir);
-  expect(result).toThrow();
+test('wrong URL', async () => {
+  nock('https://abc.xyz')
+    .get('/a')
+    .reply(404);
+
+  await expect(pageLoader('https://abc.xyz/a', tempDir)).rejects.toThrow();
 });
