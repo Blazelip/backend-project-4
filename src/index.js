@@ -3,20 +3,7 @@ import { URL } from 'url';
 import axios from 'axios';
 import cheerio from 'cheerio';
 import path from 'path';
-
-const testHtml = `<html lang="ru">
-<head>
-  <meta charset="utf-8">
-  <title>Курсы по программированию Хекслет</title>
-</head>
-<body>
-  <img src="/assets/professions/nodejs.png" alt="Иконка профессии Node.js-программист">
-  <img src="https://cdn2.hexlet.io/derivations/image/original/eyJpZCI6ImQ2OWY2MDJlZTNjMDgyNGJkNjU3MjdkNDhlNGIzZjY0LnBuZyIsInN0b3JhZ2UiOiJjYWNoZSJ9?signature=62e5ec9ec980180796f627ea0a33b9ffa80b9428f5efc231e788e253f671a8dd">
-  <h3>
-    <a href="/professions/nodejs">Node.js-программист</a>
-  </h3>
-</body>
-</html>`;
+import prettier from 'prettier';
 
 const parseName = (url) => {
   const { protocol, href } = new URL(url);
@@ -43,13 +30,11 @@ const getAbsoluteImageLink = (imageLink, url) => {
 };
 
 export default (url, directory = process.cwd()) => {
-  
   const fileName = parseName(url);
   const folderName = `${fileName}_files`;
 
   const htmlFilePath = `${directory}/${fileName}.html`;
   const resoursesFolderPath = `${directory}/${folderName}`;
-  console.log("🚀 ~ file: index.js ~ line 52 ~ resoursesFolderPath", resoursesFolderPath);
 
   let markup;
   const absoluteImgLinks = [];
@@ -69,24 +54,9 @@ export default (url, directory = process.cwd()) => {
 
       return $.html();
     })
-    .then((data) => fsp.writeFile(htmlFilePath, data))
+    .then((data) => fsp.writeFile(htmlFilePath, prettier.format(data, { parser: 'html' })))
     .then(() => fsp.mkdir(resoursesFolderPath))
-    .then(() => absoluteImgLinks.forEach((imageLink) => {
-      console.log("🚀 ~ file: index.js ~ line 76 ~ .then ~ imageLink", imageLink);
-
-      return axios.get({
-        method: 'get',
-        url: imageLink,
-        responseType: 'arraybuffer',
-      })
-        .then((response) => {
-          console.log('SUCCESS');
-          return fsp.writeFile(`${folderName}/${parseImageName(imageLink)}`, response.data);
-        })
-        .catch((error) => {
-          throw new Error('YAAAAAAAAA');
-        });
-    }))
+    .then(() => absoluteImgLinks.forEach((imageLink) => axios.get(imageLink, { responseType: 'arraybuffer' }).then((response) => fsp.writeFile(`${folderName}/${parseImageName(imageLink)}`, response.data))))
     .catch((error) => {
       throw error;
     });

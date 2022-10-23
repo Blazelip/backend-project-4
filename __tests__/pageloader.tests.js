@@ -7,7 +7,9 @@ import nock from 'nock';
 import pageLoader from '../src/index.js';
 
 let tempDir;
-let expected;
+let expectedHtml;
+let expectedModifiedHtml;
+let expectedImg;
 
 const URL = 'https://ru.hexlet.io/courses';
 
@@ -19,21 +21,29 @@ const getFixturePath = (filename) => path.resolve(__dirname, '..', '__fixtures__
 nock.disableNetConnect();
 
 beforeAll(async () => {
-  expected = await fsp.readFile(getFixturePath('expected.html'), 'utf-8');
+  expectedHtml = await fsp.readFile(getFixturePath('expected.html'), 'utf-8');
+  expectedModifiedHtml = await fsp.readFile(getFixturePath('expectedModified.html'), 'utf-8');
+  expectedImg = await fsp.readFile(getFixturePath('expected.png'), 'utf-8');
 });
 
 beforeEach(async () => {
   tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), 'page-loader-'));
+  console.log("🚀 ~ file: pageloader.tests.js ~ line 31 ~ beforeEach ~ tempDir", tempDir)
 });
 
 test('correct dataFetch', async () => {
-  nock(/ru\.hexlet\.io/)
+  const scope = nock(/ru\.hexlet\.io/)
     .get(/\/courses/)
-    .reply(200, expected);
+    .reply(200, expectedHtml)
+    .get(/\/assets\/professions\/nodejs\.png/)
+    .reply(200, expectedImg);
 
-  const filePath = await pageLoader(URL, tempDir);
-  const fileContent = await fsp.readFile(filePath, 'utf-8');
-  expect(fileContent).toEqual(expected);
+  await pageLoader(URL, tempDir);
+  const downloadedHtml = await fsp.readFile(path.join(tempDir, 'ru-hexlet-io-courses.html'), 'utf-8');
+  const downloadedImg = await fsp.readFile(path.join(tempDir, 'ru-hexlet-io-courses_files', 'ru-hexlet-io-assets-professions-nodejs.png'), 'utf-8');
+  expect(downloadedHtml).toEqual(expectedModifiedHtml);
+  expect(downloadedImg).toEqual(expectedImg);
+  expect(scope.isDone()).toBe(true);
 });
 
 test('wrong URL', async () => {
