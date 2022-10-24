@@ -31,10 +31,14 @@ const getAbsoluteImageLink = (imageLink, url) => {
 
 export default (url, directory = process.cwd()) => {
   const fileName = parseName(url);
+  console.log("🚀 ~ file: index.js ~ line 34 ~ fileName", fileName)
   const folderName = `${fileName}_files`;
+  console.log("🚀 ~ file: index.js ~ line 36 ~ folderName", folderName)
 
   const htmlFilePath = `${directory}/${fileName}.html`;
+  console.log("🚀 ~ file: index.js ~ line 39 ~ htmlFilePath", htmlFilePath)
   const resoursesFolderPath = `${directory}/${folderName}`;
+  console.log("🚀 ~ file: index.js ~ line 41 ~ resoursesFolderPath", resoursesFolderPath)
 
   let markup;
   const absoluteImgLinks = [];
@@ -56,7 +60,7 @@ export default (url, directory = process.cwd()) => {
     })
     .then((data) => fsp.writeFile(htmlFilePath, prettier.format(data, { parser: 'html' })))
     .then(() => fsp.mkdir(resoursesFolderPath))
-    .then(() => absoluteImgLinks.forEach((imageLink) => axios.get(imageLink, { responseType: 'arraybuffer' }).then((response) => fsp.writeFile(`${folderName}/${parseImageName(imageLink)}`, response.data))))
+    .then(() => absoluteImgLinks.forEach((imageLink) => axios.get(imageLink, { responseType: 'arraybuffer' }).then((response) => fsp.writeFile(`${resoursesFolderPath}/${parseImageName(imageLink)}`, response.data))))
     .catch((error) => {
       throw error;
     });
