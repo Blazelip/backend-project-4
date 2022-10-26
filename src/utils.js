@@ -19,13 +19,12 @@ const parseResourceName = (url) => {
 };
 
 const isResourceLinkLocal = (resourceLink, url) => {
-  console.log("🚀 ~ file: utils.js ~ line 22 ~ isResourceLinkLocal ~ url", url)
   console.log("🚀 ~ file: utils.js ~ line 22 ~ isResourceLinkLocal ~ resourceLink", resourceLink)
   
   const absoluteLink = new URL(resourceLink, url);
-  console.log("🚀 ~ file: utils.js ~ line 26 ~ isResourceLinkLocal ~ absoluteLink", absoluteLink.hostname)
+  console.log("🚀 ~ file: utils.js ~ line 26 ~ isResourceLinkLocal ~ absoluteLink", absoluteLink.href)
   const urlInstance = new URL(url);
-  console.log("🚀 ~ file: utils.js ~ line 28 ~ isResourceLinkLocal ~ urlInstance", urlInstance.hostname)
+  // console.log("🚀 ~ file: utils.js ~ line 28 ~ isResourceLinkLocal ~ urlInstance", urlInstance.hostname)
   return absoluteLink.hostname === urlInstance.hostname;
 };
 

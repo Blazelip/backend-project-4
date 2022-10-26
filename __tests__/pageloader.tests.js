@@ -49,12 +49,12 @@ test('correct dataFetch', async () => {
   await pageLoader(URL, tempDir);
   const downloadedHtml = await fsp.readFile(path.join(tempDir, 'ru-hexlet-io-courses.html'), 'utf-8');
   const downloadedImg = await fsp.readFile(path.join(tempDir, 'ru-hexlet-io-courses_files', 'ru-hexlet-io-assets-professions-nodejs.png'), 'utf-8');
-  // const downloadedCss = await fsp.readFile(path.join(tempDir, 'ru-hexlet-io-courses_files', 'ru-hexlet-io-assets-application.css'), 'utf-8');
-  // const downloadedScript = await fsp.readFile(path.join(tempDir, 'ru-hexlet-io-courses_files', 'ru-hexlet-io-packs-js-runtime.js'), 'utf-8');
+  const downloadedCss = await fsp.readFile(path.join(tempDir, 'ru-hexlet-io-courses_files', 'ru-hexlet-io-assets-application.css'), 'utf-8');
+  const downloadedScript = await fsp.readFile(path.join(tempDir, 'ru-hexlet-io-courses_files', 'ru-hexlet-io-packs-js-runtime.js'), 'utf-8');
   expect(downloadedHtml).toEqual(expectedModifiedHtml);
   expect(downloadedImg).toEqual(expectedImg);
-  // expect(downloadedCss).toEqual(expectedCss);
-  // expect(downloadedScript).toEqual(expectedScript);
+  expect(downloadedCss).toEqual(expectedCss);
+  expect(downloadedScript).toEqual(expectedScript);
   expect(scope.isDone()).toBe(true);
 });
 
