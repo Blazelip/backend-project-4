@@ -32,7 +32,6 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), 'page-loader-'));
-  console.log("🚀 ~ file: pageloader.tests.js ~ line 31 ~ beforeEach ~ tempDir", tempDir)
 });
 
 test('correct dataFetch', async () => {
