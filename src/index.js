@@ -11,25 +11,6 @@ const RESOURCES_MAP = {
   script: 'src',
 };
 
-const testHtml = `<!DOCTYPE html>
-<html lang="ru">
-  <head>
-    <meta charset="utf-8">
-    <title>Курсы по программированию Хекслет</title>
-    <link rel="stylesheet" media="all" href="https://cdn2.hexlet.io/assets/menu.css">
-    <link rel="stylesheet" media="all" href="/assets/application.css" />
-    <link href="/courses" rel="canonical">
-  </head>
-  <body>
-    <img src="/assets/professions/nodejs.png" alt="Иконка профессии Node.js-программист" />
-    <h3>
-      <a href="/professions/nodejs">Node.js-программист</a>
-    </h3>
-    <script src="https://js.stripe.com/v3/"></script>
-    <script src="https://ru.hexlet.io/packs/js/runtime.js"></script>
-  </body>
-</html>`;
-
 export default (url, directory = process.cwd()) => {
   const fileName = parseName(url);
   const folderName = `${fileName}_files`;
@@ -44,7 +25,7 @@ export default (url, directory = process.cwd()) => {
     .then(() => axios.get(url))
     .then((response) => response.data)
     .then((html) => {
-      $ = cheerio.load(testHtml);
+      $ = cheerio.load(html);
 
       const promises = [];
 
@@ -63,7 +44,7 @@ export default (url, directory = process.cwd()) => {
 
           promises.push(axios.get(absoluteLink, { responseType: 'arraybuffer' })
             .then((response) => fsp.writeFile(`${resourcesFolderPath}/${resourceName}`, response.data))
-            .catch((error) => console.log(`SOMETHING WRONG ${link} ${absoluteLink}`)));
+            .catch(() => console.log(`SOMETHING WRONG with ${absoluteLink}`)));
         });
       });
       return Promise.all(promises);

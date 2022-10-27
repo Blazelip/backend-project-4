@@ -10,7 +10,7 @@ const parseName = (url) => {
 
 const parseResourceName = (url) => {
   const { protocol, href } = new URL(url);
-  const fileExt = path.extname(url);
+  const fileExt = path.extname(url) || '.html';
 
   const linkWithoutProtocol = href.replace(`${protocol}//`, '');
   const linkWithoutExt = linkWithoutProtocol.replace(fileExt, '');
@@ -19,12 +19,9 @@ const parseResourceName = (url) => {
 };
 
 const isResourceLinkLocal = (resourceLink, url) => {
-  console.log("🚀 ~ file: utils.js ~ line 22 ~ isResourceLinkLocal ~ resourceLink", resourceLink)
-  
   const absoluteLink = new URL(resourceLink, url);
-  console.log("🚀 ~ file: utils.js ~ line 26 ~ isResourceLinkLocal ~ absoluteLink", absoluteLink.href)
   const urlInstance = new URL(url);
-  // console.log("🚀 ~ file: utils.js ~ line 28 ~ isResourceLinkLocal ~ urlInstance", urlInstance.hostname)
+
   return absoluteLink.hostname === urlInstance.hostname;
 };
 
