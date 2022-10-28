@@ -36,7 +36,7 @@ beforeEach(async () => {
 
 test('correct dataFetch', async () => {
   const scope = nock(/ru\.hexlet\.io/)
-    .get(/\/courses/)
+    .get(/\/courses/).times(2)
     .reply(200, expectedHtml)
     .get(/\/assets\/professions\/nodejs\.png/)
     .reply(200, expectedImg)
@@ -50,10 +50,12 @@ test('correct dataFetch', async () => {
   const downloadedImg = await fsp.readFile(path.join(tempDir, 'ru-hexlet-io-courses_files', 'ru-hexlet-io-assets-professions-nodejs.png'), 'utf-8');
   const downloadedCss = await fsp.readFile(path.join(tempDir, 'ru-hexlet-io-courses_files', 'ru-hexlet-io-assets-application.css'), 'utf-8');
   const downloadedScript = await fsp.readFile(path.join(tempDir, 'ru-hexlet-io-courses_files', 'ru-hexlet-io-packs-js-runtime.js'), 'utf-8');
+  const downloadedLinkHtml = await fsp.readFile(path.join(tempDir, 'ru-hexlet-io-courses_files', 'ru-hexlet-io-courses.html'), 'utf-8');
   expect(downloadedHtml).toEqual(expectedModifiedHtml);
   expect(downloadedImg).toEqual(expectedImg);
   expect(downloadedCss).toEqual(expectedCss);
   expect(downloadedScript).toEqual(expectedScript);
+  expect(downloadedLinkHtml).toEqual(expectedHtml);
   expect(scope.isDone()).toBe(true);
 });
 

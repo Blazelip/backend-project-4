@@ -3,8 +3,9 @@ import { URL } from 'url';
 import axios from 'axios';
 import cheerio from 'cheerio';
 import prettier from 'prettier';
-import { parseName, parseResourceName, isResourceLinkLocal } from './utils.js';
 import debug from 'debug';
+import axiosDebug from 'axios-debug-log';
+import { parseName, parseResourceName, isResourceLinkLocal } from './utils.js';
 
 const log = debug('page-loader');
 
@@ -13,6 +14,18 @@ const RESOURCES_MAP = {
   link: 'href',
   script: 'src',
 };
+
+axiosDebug({
+  request(httpDebug, config) {
+    httpDebug(`Request ${config.url}`);
+  },
+  response(httpDebug, response) {
+    httpDebug(
+      `Response with ${response.headers['content-type']}`,
+      `from ${response.config.url}`,
+    );
+  },
+});
 
 export default (url, directory = process.cwd()) => {
   log(`${url} - URL for download`);
@@ -49,8 +62,7 @@ export default (url, directory = process.cwd()) => {
           $(el).attr(RESOURCES_MAP[tag], `${folderName}/${parseResourceName(absoluteLink)}`);
 
           promises.push(axios.get(absoluteLink, { responseType: 'arraybuffer' })
-            .then((response) => fsp.writeFile(`${resourcesFolderPath}/${resourceName}`, response.data))
-            .catch((error) => log(`Trouble with resource download and record - ${error}`)));
+            .then((response) => fsp.writeFile(`${resourcesFolderPath}/${resourceName}`, response.data)));
         });
       });
       return Promise.all(promises);
@@ -60,6 +72,7 @@ export default (url, directory = process.cwd()) => {
       return fsp.writeFile(htmlFilePath, prettier.format($.html(), { parser: 'html' }));
     })
     .catch((error) => {
+      console.error(`Sorry, download error: ${error.message} ${error.code}`);
       throw error;
     });
 };
