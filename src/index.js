@@ -3,8 +3,9 @@ import { URL } from 'url';
 import axios from 'axios';
 import cheerio from 'cheerio';
 import prettier from 'prettier';
-import debug from 'debug';
+import Listr from 'listr';
 import axiosDebug from 'axios-debug-log';
+import debug from 'debug';
 import { parseName, parseResourceName, isResourceLinkLocal } from './utils.js';
 
 const log = debug('page-loader');
@@ -21,8 +22,7 @@ axiosDebug({
   },
   response(httpDebug, response) {
     httpDebug(
-      `Response with ${response.headers['content-type']}`,
-      `from ${response.config.url}`,
+      `Response from ${response.config.url}`,
     );
   },
 });
@@ -61,11 +61,17 @@ export default (url, directory = process.cwd()) => {
 
           $(el).attr(RESOURCES_MAP[tag], `${folderName}/${parseResourceName(absoluteLink)}`);
 
-          promises.push(axios.get(absoluteLink, { responseType: 'arraybuffer' })
-            .then((response) => fsp.writeFile(`${resourcesFolderPath}/${resourceName}`, response.data)));
+          const task = axios.get(absoluteLink, { responseType: 'arraybuffer' })
+            .then((response) => fsp.writeFile(`${resourcesFolderPath}/${resourceName}`, response.data));
+
+          promises.push({
+            title: `Donwload -- ${absoluteLink}`,
+            task: () => task,
+          });
         });
       });
-      return Promise.all(promises);
+
+      return new Listr(promises, { concurrent: true }).run();
     })
     .then(() => {
       log(`Html file is here ${htmlFilePath}`);

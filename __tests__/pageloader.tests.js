@@ -59,10 +59,24 @@ test('correct dataFetch', async () => {
   expect(scope.isDone()).toBe(true);
 });
 
-// test('wrong URL', async () => {
-//   nock('https://abc.xyz')
-//     .get('/a')
-//     .reply(404);
+test('HTTP errors', async () => {
+  nock('https://abc.xyz')
+    .get('/a')
+    .reply(404)
+    .get('/b')
+    .reply(500);
 
-//   await expect(pageLoader('https://abc.xyz/a', tempDir)).rejects.toThrow();
-// });
+  await expect(pageLoader('https://abc.xyz/a', tempDir)).rejects.toThrow();
+  await expect(pageLoader('https://abc.xyz/b', tempDir)).rejects.toThrow();
+});
+
+test('File system errors', async () => {
+  nock('https://test.com')
+    .get('/')
+    .times(2)
+    .reply(200);
+
+  await expect(pageLoader('https://test.com/', '/sys')).rejects.toThrow();
+  await expect(pageLoader('https://test.com/', '/folderDoesntExist')).rejects.toThrow();
+});
+
