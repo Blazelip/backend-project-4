@@ -79,4 +79,3 @@ test('File system errors', async () => {
   await expect(pageLoader('https://test.com/', '/sys')).rejects.toThrow();
   await expect(pageLoader('https://test.com/', '/folderDoesntExist')).rejects.toThrow();
 });
-
