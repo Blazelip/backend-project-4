@@ -13,7 +13,7 @@ program
   .option('-o, --output [dir]', 'output dir (default: "/home/user/current-dir")')
   .action((url, options) => {
     const result = pageLoader(url, options.output);
-    result.then(() => console.log('FINISH'));
+    result.then((path) => console.log(`Page has been successfully downloaded. Path - ${path}`));
   });
 
 program.parse();

@@ -30,6 +30,7 @@ axiosDebug({
 export default (url, directory = process.cwd()) => {
   log(`${url} - URL for download`);
   const fileName = parseName(url);
+
   const folderName = `${fileName}_files`;
   let $;
 
@@ -49,19 +50,21 @@ export default (url, directory = process.cwd()) => {
       resources.forEach((tag) => {
         $(tag).each((_, el) => {
           const link = $(el).attr(RESOURCES_MAP[tag]);
+          log(`Initial resource link ${link}`);
 
-          if (!isResourceLinkLocal(link, url)) {
-            log(`Resource is not local - ${link}`);
+          if (!isResourceLinkLocal(link, url) || !link) {
+            log(`Resource is not local or empty - ${link}`);
             return;
           }
 
-          const absoluteLink = new URL(link, url).href;
+          log(`Resource is local - ${link}`);
+          const absoluteLink = new URL(link, url);
           log(`Absolute resource link ${absoluteLink}`);
           const resourceName = parseResourceName(absoluteLink);
 
           $(el).attr(RESOURCES_MAP[tag], `${folderName}/${parseResourceName(absoluteLink)}`);
 
-          const task = axios.get(absoluteLink, { responseType: 'arraybuffer' })
+          const task = axios.get(absoluteLink.href, { responseType: 'arraybuffer' })
             .then((response) => fsp.writeFile(`${resourcesFolderPath}/${resourceName}`, response.data));
 
           promises.push({
@@ -75,10 +78,11 @@ export default (url, directory = process.cwd()) => {
     })
     .then(() => {
       log(`Html file is here ${htmlFilePath}`);
-      return fsp.writeFile(htmlFilePath, prettier.format($.html(), { parser: 'html' }));
+      fsp.writeFile(htmlFilePath, prettier.format($.html(), { parser: 'html' }));
+      return htmlFilePath;
     })
     .catch((error) => {
-      console.error(`Sorry, download error: ${error.message} ${error.code}`);
+      console.error(`Sorry, download error: ${error.message} / ${error.code}`);
       throw error;
     });
 };

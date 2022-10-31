@@ -1,21 +1,15 @@
 import path from 'path';
 
-const parseName = (url) => {
-  const { protocol, href } = new URL(url);
-
-  const linkWithoutProtocol = href.replace(`${protocol}//`, '');
-  const fileName = linkWithoutProtocol.replace(/\.|\//g, '-');
-  return fileName;
-};
+const parseName = (url) => url.replace(/htt(p|ps):\/\//, '').replace(/\W/g, '-');
 
 const parseResourceName = (url) => {
-  const { protocol, href } = new URL(url);
-  const fileExt = path.extname(url) || '.html';
+  const { href, pathname } = url;
+  const fileExt = path.extname(pathname) || '.html';
 
-  const linkWithoutProtocol = href.replace(`${protocol}//`, '');
-  const linkWithoutExt = linkWithoutProtocol.replace(fileExt, '');
-  const transformedPath = linkWithoutExt.replace(/\.|\//g, '-');
-  return `${transformedPath}${fileExt}`;
+  const nameForChange = `${path.parse(href).dir}/${path.parse(href).name}`;
+  const nameWithoutExt = parseName(nameForChange);
+
+  return `${nameWithoutExt}${fileExt}`;
 };
 
 const isResourceLinkLocal = (resourceLink, url) => {
