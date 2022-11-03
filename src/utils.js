@@ -13,6 +13,10 @@ const parseResourceName = (url) => {
 };
 
 const isResourceLinkLocal = (resourceLink, url) => {
+  if (!resourceLink) {
+    return false;
+  }
+
   const absoluteLink = new URL(resourceLink, url);
   const urlInstance = new URL(url);
 

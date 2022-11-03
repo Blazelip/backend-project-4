@@ -41,9 +41,8 @@ export default (url, directory = process.cwd()) => {
 
   return fsp.mkdir(resourcesFolderPath)
     .then(() => axios.get(url))
-    .then((response) => response.data)
-    .then((html) => {
-      $ = cheerio.load(html);
+    .then((response) => {
+      $ = cheerio.load(response.data);
 
       const promises = [];
 
@@ -52,7 +51,7 @@ export default (url, directory = process.cwd()) => {
           const link = $(el).attr(RESOURCES_MAP[tag]);
           log(`Initial resource link ${link}`);
 
-          if (!isResourceLinkLocal(link, url) || !link) {
+          if (!isResourceLinkLocal(link, url)) {
             log(`Resource is not local or empty - ${link}`);
             return;
           }
@@ -65,7 +64,7 @@ export default (url, directory = process.cwd()) => {
           $(el).attr(RESOURCES_MAP[tag], `${folderName}/${parseResourceName(absoluteLink)}`);
 
           const task = axios.get(absoluteLink.href, { responseType: 'arraybuffer' })
-            .then((response) => fsp.writeFile(`${resourcesFolderPath}/${resourceName}`, response.data));
+            .then((responseRes) => fsp.writeFile(`${resourcesFolderPath}/${resourceName}`, responseRes.data));
 
           promises.push({
             title: `Donwload -- ${absoluteLink}`,

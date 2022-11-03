@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "page loader",
   "type": "module",
+  "main": "src/index.js",
   "bin": {
     "page-loader": "bin/pageLoader.js"
   },
