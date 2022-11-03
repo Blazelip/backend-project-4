@@ -44,34 +44,30 @@ export default (url, directory = process.cwd()) => {
     .then((response) => {
       $ = cheerio.load(response.data);
 
-      const promises = [];
+      const promises = resources.flatMap((tag) => $(tag).toArray().flatMap((el) => {
+        const link = $(el).attr(RESOURCES_MAP[tag]);
+        log(`Initial resource link ${link}`);
 
-      resources.forEach((tag) => {
-        $(tag).each((_, el) => {
-          const link = $(el).attr(RESOURCES_MAP[tag]);
-          log(`Initial resource link ${link}`);
+        if (!isResourceLinkLocal(link, url)) {
+          log(`Resource is not local or empty - ${link}`);
+          return [];
+        }
 
-          if (!isResourceLinkLocal(link, url)) {
-            log(`Resource is not local or empty - ${link}`);
-            return;
-          }
+        log(`Resource is local - ${link}`);
+        const absoluteLink = new URL(link, url);
+        log(`Absolute resource link ${absoluteLink}`);
+        const resourceName = parseResourceName(absoluteLink);
 
-          log(`Resource is local - ${link}`);
-          const absoluteLink = new URL(link, url);
-          log(`Absolute resource link ${absoluteLink}`);
-          const resourceName = parseResourceName(absoluteLink);
+        $(el).attr(RESOURCES_MAP[tag], `${folderName}/${parseResourceName(absoluteLink)}`);
 
-          $(el).attr(RESOURCES_MAP[tag], `${folderName}/${parseResourceName(absoluteLink)}`);
+        const task = axios.get(absoluteLink.href, { responseType: 'arraybuffer' })
+          .then((responseRes) => fsp.writeFile(`${resourcesFolderPath}/${resourceName}`, responseRes.data));
 
-          const task = axios.get(absoluteLink.href, { responseType: 'arraybuffer' })
-            .then((responseRes) => fsp.writeFile(`${resourcesFolderPath}/${resourceName}`, responseRes.data));
-
-          promises.push({
-            title: `Donwload -- ${absoluteLink}`,
-            task: () => task,
-          });
-        });
-      });
+        return {
+          title: `Donwload -- ${absoluteLink}`,
+          task: () => task,
+        };
+      }));
 
       return new Listr(promises, { concurrent: true }).run();
     })
