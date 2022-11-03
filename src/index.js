@@ -64,7 +64,7 @@ export default (url, directory = process.cwd()) => {
           .then((responseRes) => fsp.writeFile(`${resourcesFolderPath}/${resourceName}`, responseRes.data));
 
         return {
-          title: `Donwload -- ${absoluteLink}`,
+          title: `Download -- ${absoluteLink}`,
           task: () => task,
         };
       }));
